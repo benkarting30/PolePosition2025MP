@@ -1,7 +1,9 @@
 // JavaScript source code
+const socket = io({
+    transports: ["Websocket"]
+})
 
-
-let player, otherPlayers, map, tracklimit, socket, PlayerSensitivity = 3, endGame = false, slowed = false
+let player, otherPlayers, map, tracklimit, PlayerSensitivity = 3, endGame = false, slowed = false
 function setup() {
     createCanvas(windowWidth, windowHeight)
     player = new Sprite()
@@ -11,14 +13,14 @@ function setup() {
     player.x = width / 2
     player.y = height / 2
 
-    otherPlayers = new Sprite()
+    otherPlayers = new Group()
     otherPlayers.w = 12
     otherPlayers.h = 8
     otherPlayers.collider = 'd'
     otherPlayers.x = height / 2
     otherPlayers.y = height / 2
 
-    socket = io.connect("http://localhost:3000");
+    socket = io.connect();
 
 }
 
@@ -27,6 +29,15 @@ function draw() {
     controls()
     player.draw()
     contactServer()
+    socket.on("Update", (data) => {
+        for (const id in data) {
+            const dat = data[id];
+            let vehicle = new otherPlayers.Sprite()
+            vehicle.x = dat.x
+            vehicle.y = dat.y
+            vehicle.rotation = dat.rotation
+        }
+    })
 }
 
 function contactServer() {
